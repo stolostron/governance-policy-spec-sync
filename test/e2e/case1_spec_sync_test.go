@@ -17,12 +17,11 @@ var _ = Describe("Test spec sync", func() {
 		It("should be created in same ns on managed cluster", func() {
 			By("Creating " + case1PolicyYaml + " on hub")
 			utils.Kubectl("apply", "-f", case1PolicyYaml, "-n", testNamespace,
-
 				"--kubeconfig=../../kubeconfig_hub")
 			plc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
 			Expect(plc).NotTo(BeNil())
 		})
-		It("should update policy on managed cluster ", func() {
+		It("should update policy on managed cluster", func() {
 			By("Patching " + case1PolicyYaml + " on hub with spec.remediationAction = enforce")
 			hubPlc := utils.GetWithTimeout(clientHubDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
 			Expect(hubPlc).NotTo(BeNil())
@@ -34,6 +33,19 @@ var _ = Describe("Test spec sync", func() {
 				managedPlc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
 				return managedPlc.Object["spec"]
 			}, defaultTimeoutSeconds, 1).Should(utils.SemanticEqual(hubPlc.Object["spec"]))
+		})
+		It("should update policy to a different policy template", func() {
+			By("Creating ../resources/case1_propagation/case1-test-policy2.yaml")
+			utils.Kubectl("apply",
+				"-f", "../resources/case1_spec_sync/case1-test-policy2.yaml",
+				"-n", testNamespace, "--kubeconfig=../../kubeconfig_hub")
+			hubPlc := utils.GetWithTimeout(clientHubDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
+			Expect(hubPlc).NotTo(BeNil())
+			yamlPlc := utils.ParseYaml("../resources/case1_spec_sync/case1-test-policy2.yaml")
+			Eventually(func() interface{} {
+				managedPlc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
+				return managedPlc.Object["spec"]
+			}, defaultTimeoutSeconds, 1).Should(utils.SemanticEqual(yamlPlc.Object["spec"]))
 		})
 	})
 })
