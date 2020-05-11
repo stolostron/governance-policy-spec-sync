@@ -66,15 +66,17 @@ var _ = BeforeSuite(func() {
 	testNamespace = "managed"
 	defaultTimeoutSeconds = 30
 	By("Create Namesapce if needed")
-	namespaces := clientHub.CoreV1().Namespaces()
-	if _, err := namespaces.Get(testNamespace, metav1.GetOptions{}); err != nil && errors.IsNotFound(err) {
-		Expect(namespaces.Create(&corev1.Namespace{
+	namespacesHub := clientHub.CoreV1().Namespaces()
+	if _, err := namespacesHub.Get(testNamespace, metav1.GetOptions{}); err != nil && errors.IsNotFound(err) {
+		Expect(namespacesHub.Create(&corev1.Namespace{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: testNamespace,
 			},
 		})).NotTo(BeNil())
 	}
-	Expect(namespaces.Get(testNamespace, metav1.GetOptions{})).NotTo(BeNil())
+	Expect(namespacesHub.Get(testNamespace, metav1.GetOptions{})).NotTo(BeNil())
+	Expect(clientManaged.CoreV1().Namespaces().Get(testNamespace, metav1.GetOptions{})).NotTo(BeNil())
+
 })
 
 func NewKubeClient(url, kubeconfig, context string) kubernetes.Interface {
