@@ -169,19 +169,19 @@ endif
 
 kind-deploy-controller: check-env
 	@echo installing policy-propagator
-	kubectl create ns multicluster-endpoint --kubeconfig=./kubeconfig_managed
-	kubectl create secret -n multicluster-endpoint docker-registry multiclusterhub-operator-pull-secret --docker-server=quay.io --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASS} --kubeconfig=./kubeconfig_managed
-	kubectl create secret -n multicluster-endpoint generic endpoint-connmgr-hub-kubeconfig --from-file=kubeconfig=./kubeconfig_hub_internal
-	kubectl apply -f deploy/ -n multicluster-endpoint --kubeconfig=./kubeconfig_managed
+	kubectl create ns multicluster-endpoint --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl create secret -n multicluster-endpoint docker-registry multiclusterhub-operator-pull-secret --docker-server=quay.io --docker-username=${DOCKER_USER} --docker-password=${DOCKER_PASS} --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl create secret -n multicluster-endpoint generic endpoint-connmgr-hub-kubeconfig --from-file=kubeconfig=$(PWD)/kubeconfig_hub_internal
+	kubectl apply -f deploy/ -n multicluster-endpoint --kubeconfig=$(PWD)/kubeconfig_managed
 
 kind-create-cluster:
 	@echo "creating cluster"
 	kind create cluster --name test-hub
-	kind get kubeconfig --name test-hub > kubeconfig_hub
+	kind get kubeconfig --name test-hub > $(PWD)/kubeconfig_hub
 	# needed for mangaed -> hub communication
-	kind get kubeconfig --name test-hub --internal > kubeconfig_hub_internal
+	kind get kubeconfig --name test-hub --internal > $(PWD)/kubeconfig_hub_internal
 	kind create cluster --name test-managed
-	kind get kubeconfig --name test-managed > kubeconfig_managed
+	kind get kubeconfig --name test-managed > $(PWD)/kubeconfig_managed
 
 kind-delete-cluster:
 	kind delete cluster --name test-hub
@@ -189,12 +189,12 @@ kind-delete-cluster:
 
 install-crds:
 	@echo installing crds
-	kubectl apply -f deploy/crds/policies.open-cluster-management.io_policies_crd.yaml --kubeconfig=./kubeconfig_hub
-	kubectl apply -f deploy/crds/policies.open-cluster-management.io_policies_crd.yaml  --kubeconfig=./kubeconfig_managed
+	kubectl apply -f deploy/crds/policies.open-cluster-management.io_policies_crd.yaml --kubeconfig=$(PWD)/kubeconfig_hub
+	kubectl apply -f deploy/crds/policies.open-cluster-management.io_policies_crd.yaml  --kubeconfig=$(PWD)/kubeconfig_managed
 
 install-resources:
 	@echo creating namespace on hub
-	kubectl create ns managed --kubeconfig=./kubeconfig_hub
+	kubectl create ns managed --kubeconfig=$(PWD)/kubeconfig_hub
  
 e2e-test:
 	ginkgo -v --slowSpecThreshold=10 test/e2e
