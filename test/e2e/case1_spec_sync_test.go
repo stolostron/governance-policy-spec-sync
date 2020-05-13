@@ -46,7 +46,7 @@ var _ = Describe("Test spec sync", func() {
 		}, defaultTimeoutSeconds, 1).Should(utils.SemanticEqual(hubPlc.Object["spec"]))
 	})
 	It("should update policy to a different policy template", func() {
-		By("Creating ../resources/case1_propagation/case1-test-policy2.yaml")
+		By("Updating policy on hub with ../resources/case1_propagation/case1-test-policy2.yaml")
 		utils.Kubectl("apply",
 			"-f", "../resources/case1_spec_sync/case1-test-policy2.yaml",
 			"-n", testNamespace, "--kubeconfig=../../kubeconfig_hub")
@@ -59,10 +59,9 @@ var _ = Describe("Test spec sync", func() {
 		}, defaultTimeoutSeconds, 1).Should(utils.SemanticEqual(yamlPlc.Object["spec"]))
 	})
 	It("should delete policy on managed cluster", func() {
-		By("Deleting ../resources/case1_propagation/case1-test-policy2.yaml")
-		utils.Kubectl("delete",
-			"-f", "../resources/case1_spec_sync/case1-test-policy2.yaml",
-			"-n", testNamespace, "--kubeconfig=../../kubeconfig_hub")
+		By("Deleting policy on hub")
+		utils.Kubectl("delete", "policy", "-n", testNamespace,
+			"--all", "--kubeconfig=../../kubeconfig_hub")
 		opt := metav1.ListOptions{}
 		utils.ListWithTimeout(clientHubDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)
 		utils.ListWithTimeout(clientManagedDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)
