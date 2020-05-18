@@ -49,9 +49,9 @@ func ProcessFlags() {
 	)
 
 	flag.StringVar(
-		&Options.HubConfigFilePathName,
+		&Options.ManagedConfigFilePathName,
 		"managed-cluster-configfile",
-		Options.HubConfigFilePathName,
+		Options.ManagedConfigFilePathName,
 		"Configuration file pathname to managed kubernetes cluster",
 	)
 }
