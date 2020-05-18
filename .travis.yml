@@ -48,8 +48,10 @@ jobs:
         - make copyright-check TRAVIS_BRANCH=${TRAVIS_BRANCH}
         - |
           make
-          make component/build
-          make component/push
+          make component/test/unit
+          make go/gosec-install
+          gosec -fmt sonarqube -out gosec.json -no-fail ./...
+          make sonar/js
           if [ "$IMAGE_SCAN" != "false" ]; then make security/scans; fi;
         - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then 
             export COMPONENT_NEWTAG="latest-dev";
