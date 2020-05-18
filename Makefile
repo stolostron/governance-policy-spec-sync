@@ -206,7 +206,7 @@ build-instrumented:
 	go test -covermode=atomic -coverpkg=github.com/open-cluster-management/$(IMG)... -c -tags e2e ./cmd/manager -o build/_output/bin/$(IMG)-instrumented
 
 run-instrumented:
-	WATCH_NAMESPACE="managed" ./build/_output/bin/$(IMG)-instrumented --kubeconfig=$(DEST)/kubeconfig_managed --hub-cluster-configfile=$(DEST)/kubeconfig_hub -test.run "^TestRunMain$$" -test.coverprofile=coverage.out &>/dev/null &
+	HUB_CONFIG="$(DEST)/kubeconfig_hub" MANAGED_CONFIG="$(DEST)/kubeconfig_managed" WATCH_NAMESPACE="managed" ./build/_output/bin/$(IMG)-instrumented -test.run "^TestRunMain$$" -test.coverprofile=coverage.out
 
 stop-instrumented:
 	ps -ef | grep 'govern' | grep -v grep | awk '{print $$2}' | xargs kill
