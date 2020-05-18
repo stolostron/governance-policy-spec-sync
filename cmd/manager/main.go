@@ -84,30 +84,31 @@ func main() {
 	}
 
 	// Get managedconfig to talk to hub apiserver
-	if tool.Options.ManagedConfigFilePathName == "" {
-		tool.Options.ManagedConfigFilePathName, _ = os.LookupEnv("MANAGED_CONFIG")
-	}
-
 	var managedCfg *rest.Config
-
-	if tool.Options.ManagedConfigFilePathName != "" {
-		log.Info("Found ENV MANAGED_CONFIG, initializing using", "tool.Options.ManagedConfigFilePathName",
-			tool.Options.ManagedConfigFilePathName)
-		managedCfg, err = clientcmd.BuildConfigFromFlags("", tool.Options.ManagedConfigFilePathName)
-	}
-	if err != nil {
-		managedCfg, err = config.GetConfig()
-		if err != nil {
-			log.Error(err, "")
-			os.Exit(1)
+	if tool.Options.ManagedConfigFilePathName == "" {
+		found := false
+		tool.Options.ManagedConfigFilePathName, found = os.LookupEnv("MANAGED_CONFIG")
+		if found {
+			log.Info("Found ENV MANAGED_CONFIG, initializing using", "tool.Options.ManagedConfigFilePathName",
+				tool.Options.ManagedConfigFilePathName)
+			managedCfg, err = clientcmd.BuildConfigFromFlags("", tool.Options.ManagedConfigFilePathName)
+		} else {
+			managedCfg, err = config.GetConfig()
+			if err != nil {
+				log.Error(err, "")
+				os.Exit(1)
+			}
 		}
 	}
 
 	// Get hubconfig to talk to hub apiserver
 	if tool.Options.HubConfigFilePathName == "" {
-		tool.Options.HubConfigFilePathName, _ = os.LookupEnv("HUB_CONFIG")
-		log.Info("Found ENV HUB_CONFIG, initializing using", "tool.Options.HubConfigFilePathName",
-			tool.Options.HubConfigFilePathName)
+		found := false
+		tool.Options.HubConfigFilePathName, found = os.LookupEnv("HUB_CONFIG")
+		if found {
+			log.Info("Found ENV HUB_CONFIG, initializing using", "tool.Options.HubConfigFilePathName",
+				tool.Options.HubConfigFilePathName)
+		}
 	}
 
 	hubCfg, err := clientcmd.BuildConfigFromFlags("", tool.Options.HubConfigFilePathName)
