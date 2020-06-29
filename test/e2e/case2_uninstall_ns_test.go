@@ -26,15 +26,19 @@ var _ = Describe("Test uninstall ns", func() {
 		plc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case2PolicyName, "uninstall", true, defaultTimeoutSeconds)
 		Expect(plc).NotTo(BeNil())
 	})
+	AfterEach(func() {
+		By("Delete the job on managed cluster")
+		utils.Kubectl("delete", "job", "uninstall-ns", "-n", "multicluster-endpoint",
+			"--kubeconfig=../../kubeconfig_managed")
+	})
 	It("should remove ns on managed cluster", func() {
 		By("Running uninstall ns job")
 		utils.Kubectl("apply", "-f", case2UninstallYaml, "-n", "multicluster-endpoint",
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			Expect(err).To(BeNil())
-			return ns
-		}, 120, 1).Should(BeNil())
+			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			return err
+		}, 120, 1).ShouldNot(BeNil())
 	})
 })
