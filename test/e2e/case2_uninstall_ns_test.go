@@ -42,8 +42,10 @@ var _ = Describe("Test uninstall ns", func() {
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			fmt.Printf("%+v\n", ns)
+			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			// fmt.Printf("%+v\n", ns)
+
+			fmt.Printf("%+v\n", clientManaged.BatchV1().Jobs("uninstall"))
 			return errors.IsNotFound(err)
 		}, 180, 1).Should(BeTrue())
 	})
