@@ -69,6 +69,8 @@ jobs:
         - |
           make
           make component/test/unit
+          oc get pod -n multicluster-endpoint 
+          oc get job -n multicluster-endpoint 
           set +e
           make stop-instrumented
           set -e

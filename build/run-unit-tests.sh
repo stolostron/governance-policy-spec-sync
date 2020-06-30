@@ -37,5 +37,3 @@ make build-instrumented
 make kind-bootstrap-cluster-dev
 make run-instrumented
 make e2e-test
-oc get pod -n multicluster-endpoint 
-oc get job -n multicluster-endpoint 
