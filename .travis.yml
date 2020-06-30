@@ -72,6 +72,7 @@ jobs:
           set +e
           make stop-instrumented
           set -e
+          kubectl get ns
           kubectl get pod -n multicluster-endpoint -l job-name=uninstall-ns 
           kubectl get job -n multicluster-endpoint
           make go/gosec-install
