@@ -45,6 +45,6 @@ var _ = Describe("Test uninstall ns", func() {
 			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
 			fmt.Printf("%+v\n", ns)
 			return errors.IsNotFound(err)
-		}, 180, 1).Should(BeTrue())
+		}, 120, 1).Should(BeTrue())
 	})
 })
