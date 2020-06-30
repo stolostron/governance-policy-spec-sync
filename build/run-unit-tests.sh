@@ -36,7 +36,4 @@ go test `go list ./... | grep -v test/e2e` > report.json
 make build-instrumented
 make kind-bootstrap-cluster-dev
 make run-instrumented
-# export COMPONENT_VERSION="latest";
-# export COMPONENT_TAG_EXTENSION="-dev";
-# make component/pull;
 make e2e-test
