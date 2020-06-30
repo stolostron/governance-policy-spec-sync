@@ -20,9 +20,9 @@ var _ = Describe("Test uninstall ns", func() {
 		utils.Kubectl("create", "ns", "uninstall",
 			"--kubeconfig=../../kubeconfig_managed")
 		Eventually(func() interface{} {
-			ns, _ := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			return ns
-		}, defaultTimeoutSeconds, 1).ShouldNot(BeNil())
+			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			return err
+		}, defaultTimeoutSeconds, 1).Should(BeNil())
 		By("Creating a policy on mananged cluster in ns: uninstall")
 		utils.Kubectl("apply", "-f", case2PolicyYaml, "-n", "uninstall",
 			"--kubeconfig=../../kubeconfig_managed")
