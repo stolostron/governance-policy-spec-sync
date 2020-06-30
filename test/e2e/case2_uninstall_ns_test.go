@@ -3,6 +3,8 @@
 package e2e
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/open-cluster-management/governance-policy-propagator/test/utils"
@@ -40,7 +42,8 @@ var _ = Describe("Test uninstall ns", func() {
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			fmt.Printf("%+v\n", ns)
 			return errors.IsNotFound(err)
 		}, 180, 1).Should(BeTrue())
 	})
