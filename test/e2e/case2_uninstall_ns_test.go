@@ -6,6 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/open-cluster-management/governance-policy-propagator/test/utils"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -40,7 +41,7 @@ var _ = Describe("Test uninstall ns", func() {
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
 			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			return err
-		}, 120, 1).ShouldNot(BeNil())
+			return errors.IsNotFound(err)
+		}, 120, 1).Should(BeTrue())
 	})
 })
