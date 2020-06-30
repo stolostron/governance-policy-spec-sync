@@ -38,5 +38,5 @@ make kind-bootstrap-cluster-dev
 make run-instrumented
 export COMPONENT_VERSION="latest";
 export COMPONENT_TAG_EXTENSION="-dev";
-make component/push;
+make component/pull;
 make e2e-test
