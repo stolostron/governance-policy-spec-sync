@@ -33,8 +33,8 @@ var _ = Describe("Test uninstall ns", func() {
 	})
 	AfterEach(func() {
 		By("Delete the job on managed cluster")
-		utils.Kubectl("delete", "job", "uninstall-ns", "-n", "multicluster-endpoint",
-			"--kubeconfig=../../kubeconfig_managed")
+		// utils.Kubectl("delete", "job", "uninstall-ns", "-n", "multicluster-endpoint",
+		// 	"--kubeconfig=../../kubeconfig_managed")
 	})
 	It("should remove ns on managed cluster", func() {
 		By("Running uninstall ns job")
@@ -42,10 +42,8 @@ var _ = Describe("Test uninstall ns", func() {
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			// fmt.Printf("%+v\n", ns)
-
-			fmt.Printf("%+v\n", clientManaged.BatchV1().Jobs("uninstall"))
+			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			fmt.Printf("%+v\n", ns)
 			return errors.IsNotFound(err)
 		}, 180, 1).Should(BeTrue())
 	})
