@@ -26,8 +26,8 @@ var _ = Describe("Test uninstall ns", func() {
 		By("Creating a policy on mananged cluster in ns: uninstall")
 		utils.Kubectl("apply", "-f", case2PolicyYaml, "-n", "uninstall",
 			"--kubeconfig=../../kubeconfig_managed")
-		plc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case2PolicyName, "uninstall", true, defaultTimeoutSeconds)
-		Expect(plc).NotTo(BeNil())
+		opt := metav1.ListOptions{}
+		utils.ListWithTimeout(clientManagedDynamic, gvrPolicy, opt, 1, true, defaultTimeoutSeconds)
 	})
 	AfterEach(func() {
 		By("Delete the job on managed cluster")
