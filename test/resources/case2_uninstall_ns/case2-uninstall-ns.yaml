@@ -30,7 +30,7 @@ spec:
       containers:
       - name: uninstall-ns
         image: "quay.io/open-cluster-management/governance-policy-spec-sync:latest-dev"
-        imagePullPolicy: "IfNotPresent"
+        imagePullPolicy: "Always"
         command: ["uninstall-ns"]
         args: 
           - "--namespace=uninstall"
