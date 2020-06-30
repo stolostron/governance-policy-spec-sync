@@ -36,4 +36,7 @@ go test `go list ./... | grep -v test/e2e` > report.json
 make build-instrumented
 make kind-bootstrap-cluster-dev
 make run-instrumented
+make docker/login
+export DOCKER_URI=quay.io/open-cluster-management/governance-policy-spec-sync:latest-dev
+make docker/pull
 make e2e-test

@@ -3,8 +3,6 @@
 package e2e
 
 import (
-	"fmt"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/open-cluster-management/governance-policy-propagator/test/utils"
@@ -33,8 +31,8 @@ var _ = Describe("Test uninstall ns", func() {
 	})
 	AfterEach(func() {
 		By("Delete the job on managed cluster")
-		// utils.Kubectl("delete", "job", "uninstall-ns", "-n", "multicluster-endpoint",
-		// 	"--kubeconfig=../../kubeconfig_managed")
+		utils.Kubectl("delete", "job", "uninstall-ns", "-n", "multicluster-endpoint",
+			"--kubeconfig=../../kubeconfig_managed")
 	})
 	It("should remove ns on managed cluster", func() {
 		By("Running uninstall ns job")
@@ -42,8 +40,7 @@ var _ = Describe("Test uninstall ns", func() {
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			ns, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
-			fmt.Printf("%+v\n", ns)
+			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
 			return errors.IsNotFound(err)
 		}, 120, 1).Should(BeTrue())
 	})
