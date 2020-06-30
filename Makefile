@@ -153,7 +153,7 @@ copyright-check:
 # e2e test section
 ############################################################
 .PHONY: kind-bootstrap-cluster
-kind-bootstrap-cluster: kind-create-cluster install-crds kind-deploy-controller install-resources
+kind-bootstrap-cluster: kind-create-cluster install-crds install-resources kind-deploy-controller
 
 .PHONY: kind-bootstrap-cluster-dev
 kind-bootstrap-cluster-dev: kind-create-cluster install-crds install-resources
