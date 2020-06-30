@@ -42,6 +42,6 @@ var _ = Describe("Test uninstall ns", func() {
 		Eventually(func() interface{} {
 			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
 			return errors.IsNotFound(err)
-		}, 120, 1).Should(BeTrue())
+		}, 300, 1).Should(BeTrue())
 	})
 })
