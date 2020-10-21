@@ -33,5 +33,5 @@ spec:
         imagePullPolicy: "Always"
         command: ["uninstall-ns"]
         args: 
-          - "--namespace=uninstall"
+          - "--namespace=managed"
       
