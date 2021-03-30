@@ -1,4 +1,6 @@
 // Copyright (c) 2020 Red Hat, Inc.
+// Copyright Contributors to the Open Cluster Management project
+
 package sync
 
 import (
@@ -145,9 +147,10 @@ func (r *ReconcilePolicy) Reconcile(request reconcile.Request) (reconcile.Result
 			r.managedRecorder.Event(instance, "Normal", "PolicySpecSync",
 				fmt.Sprintf("Policy %s was synchronized to cluster namespace %s", instance.GetName(),
 					instance.GetNamespace()))
+		} else {
+			reqLogger.Error(err, "Failed to get policy from managed...")
+			return reconcile.Result{}, err
 		}
-		reqLogger.Error(err, "Failed to get policy from managed...")
-		return reconcile.Result{}, err
 	}
 	// found, then compare and update
 	if !common.CompareSpecAndAnnotation(instance, managedPlc) {
