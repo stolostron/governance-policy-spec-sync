@@ -194,6 +194,7 @@ kind-deploy-controller-dev:
 	kind load docker-image $(REGISTRY)/$(IMG):$(TAG) --name $(KIND_NAME)
 	@echo Installing $(IMG)
 	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl create secret -n $(KIND_NAMEPACE) generic endpoint-connmgr-hub-kubeconfig --from-file=kubeconfig=$(PWD)/kubeconfig_hub_internal --kubeconfig=$(PWD)/kubeconfig_managed
 	kubectl apply -f deploy/ -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
 	@echo "Patch deployment image"
 	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"imagePullPolicy\":\"Never\"}]}}}}" --kubeconfig=$(PWD)/kubeconfig_managed
@@ -204,7 +205,7 @@ kind-create-cluster:
 	@echo "creating cluster"
 	kind create cluster --name test-hub $(KIND_ARGS)
 	kind get kubeconfig --name test-hub > $(PWD)/kubeconfig_hub
-	# needed for mangaed -> hub communication
+	# needed for managed -> hub communication
 	kind get kubeconfig --name test-hub --internal > $(PWD)/kubeconfig_hub_internal
 	kind create cluster --name $(KIND_NAME) $(KIND_ARGS)
 	kind get kubeconfig --name $(KIND_NAME) > $(PWD)/kubeconfig_managed
