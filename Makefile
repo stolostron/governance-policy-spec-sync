@@ -202,6 +202,8 @@ kind-deploy-controller-dev:
 	kubectl rollout status -n $(KIND_NAMESPACE) deployment $(IMG) --timeout=180s --kubeconfig=$(PWD)/kubeconfig_managed
 	# Workaround to properly set E2E image to local image
 	sed -i 's%quay.io/open-cluster-management/governance-policy-spec-sync:latest-dev%$(REGISTRY)/$(IMG):$(TAG)%' test/resources/case2_uninstall_ns/case2-uninstall-ns.yaml
+	sed -i 's%imagePullPolicy: "Always"%imagePullPolicy: "Never"%' test/resources/case2_uninstall_ns/case2-uninstall-ns.yaml
+	
 
 kind-create-cluster:
 	@echo "creating cluster"
