@@ -225,7 +225,8 @@ e2e-test:
 	ginkgo -v --slowSpecThreshold=10 test/e2e
 
 e2e-dependencies:
-	go mod download
+	go get github.com/onsi/ginkgo/ginkgo@v1.14.1
+	go get github.com/onsi/gomega/...@v1.10.1
 
 e2e-debug:
 	@echo gathering hub info
