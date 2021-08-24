@@ -122,7 +122,7 @@ test:
 
 test-dependencies:
 	curl -L https://github.com/kubernetes-sigs/kubebuilder/releases/download/v$(KBVERSION)/kubebuilder_$(KBVERSION)_$(GOOS)_$(GOARCH).tar.gz | tar -xz -C /tmp/
-	sudo mv /tmp/kubebuilder_2.3.0_$(GOOS)_$(GOARCH) /usr/local/kubebuilder
+	sudo mv /tmp/kubebuilder_$(KBVERSION)_$(GOOS)_$(GOARCH) /usr/local/kubebuilder
 	export PATH=$PATH:/usr/local/kubebuilder/bin
 
 ############################################################
