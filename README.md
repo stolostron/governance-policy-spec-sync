@@ -41,5 +41,5 @@ make kind-delete-cluster
 - The `governance-policy-spec-sync` is part of the `open-cluster-management` community. For more information, visit: [open-cluster-management.io](https://open-cluster-management.io).
 
 <!---
-Date: 07/21/2021
+Date: 8/18/2021
 -->
