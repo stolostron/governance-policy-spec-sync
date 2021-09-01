@@ -53,7 +53,7 @@ else
 	KIND_ARGS =
 endif
 # KubeBuilder configuration
-KBVERSION := 2.3.0
+KBVERSION := 2.3.1
 
 LOCAL_OS := $(shell uname)
 ifeq ($(LOCAL_OS),Linux)
