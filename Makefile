@@ -100,7 +100,7 @@ work: $(GOBIN)
 # Default value will run all formats, override these make target with your requirements:
 #    eg: fmt: format-go format-protos
 fmt: # format-go format-protos format-python
-	go fmt ./...
+	go fmt -mod=readonly ./...
 
 ############################################################
 # check section
