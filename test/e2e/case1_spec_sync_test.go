@@ -50,7 +50,7 @@ var _ = Describe("Test spec sync", func() {
 	})
 	It("should create policy on managed cluster", func() {
 		fmt.Println(string("12345"))
-		output, err = utils.KubectlWithOutput("get", "namespace")
+		output, err := utils.KubectlWithOutput("get", "namespace")
 		fmt.Println(string(output))
 		Expect(err).Should(BeNil())
 		output, err = utils.KubectlWithOutput("get", "policy.policy.open-cluster-management.io/default.case1-test-policy")
