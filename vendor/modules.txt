@@ -112,7 +112,7 @@ github.com/onsi/gomega/matchers/support/goraph/util
 github.com/onsi/gomega/types
 # github.com/open-cluster-management/api v0.0.0-20200610161514-939cead3902c
 github.com/open-cluster-management/api/cluster/v1
-# github.com/open-cluster-management/governance-policy-propagator v0.0.0-20210409191610-0ec1d5a4e19d
+# github.com/open-cluster-management/governance-policy-propagator v0.0.0-20211012174109-95c3b77cce09
 ## explicit
 github.com/open-cluster-management/governance-policy-propagator/pkg/apis/apps/v1
 github.com/open-cluster-management/governance-policy-propagator/pkg/apis/policy/v1
