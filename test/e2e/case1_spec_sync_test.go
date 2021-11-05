@@ -5,6 +5,7 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -18,22 +19,31 @@ const case1PolicyYaml string = "../resources/case1_spec_sync/case1-test-policy.y
 var _ = Describe("Test spec sync", func() {
 	BeforeEach(func() {
 		By("Creating a policy on hub cluster in ns:" + testNamespace)
-		_, err := utils.KubectlWithOutput("apply", "-f", case1PolicyYaml, "-n", testNamespace,
+		output, err := utils.KubectlWithOutput("apply", "-f", case1PolicyYaml, "-n", testNamespace,
 			"--kubeconfig=../../kubeconfig_hub")
+		fmt.Println(string(output))
+		Expect(err).Should(BeNil())
+		output, err = utils.KubectlWithOutput("get", "namespace")
+		fmt.Println(string(output))
 		Expect(err).Should(BeNil())
 		plc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
 		Expect(plc).NotTo(BeNil())
 	})
 	AfterEach(func() {
 		By("Deleting a policy on hub cluster in ns:" + testNamespace)
-		_, err := utils.KubectlWithOutput("delete", "-f", case1PolicyYaml, "-n", testNamespace,
+		output, err := utils.KubectlWithOutput("delete", "-f", case1PolicyYaml, "-n", testNamespace,
 			"--kubeconfig=../../kubeconfig_hub")
 		Expect(err).Should(BeNil())
+		fmt.Println(string(output))
 		opt := metav1.ListOptions{}
 		utils.ListWithTimeout(clientHubDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)
 		utils.ListWithTimeout(clientManagedDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)
 	})
 	It("should create policy on managed cluster", func() {
+		fmt.Println(string("12345"))
+		output, err := utils.KubectlWithOutput("get", "namespace")
+		fmt.Println(string(output))
+		Expect(err).Should(BeNil())
 		plc := utils.GetWithTimeout(clientManagedDynamic, gvrPolicy, case1PolicyName, testNamespace, true, defaultTimeoutSeconds)
 		Expect(plc).NotTo(BeNil())
 	})
