@@ -13,6 +13,7 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 
+	addonutils "github.com/open-cluster-management/governance-policy-spec-sync/pkg/utils"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -21,13 +22,13 @@ import (
 	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/apis"
 	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/controller"
 	"github.com/open-cluster-management/governance-policy-spec-sync/version"
-
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -109,8 +110,9 @@ func main() {
 
 	// Set default manager options
 	options := manager.Options{
-		Namespace:          namespace,
-		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
+		Namespace:              namespace,
+		MetricsBindAddress:     fmt.Sprintf("%s:%d", metricsHost, metricsPort),
+		HealthProbeBindAddress: tool.Options.ProbeAddr,
 	}
 
 	// Add support for MultiNamespace set in WATCH_NAMESPACE (e.g ns1,ns2)
@@ -126,6 +128,21 @@ func main() {
 	mgr, err := manager.New(hubCfg, options)
 	if err != nil {
 		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	cc, err := addonutils.NewConfigChecker("policy-spec-sync", tool.Options.HubConfigFilePathName)
+	if err != nil {
+		log.Error(err, "unable to setup a configChecker")
+		os.Exit(1)
+	}
+
+	if err := mgr.AddHealthzCheck("healthz", cc.Check); err != nil {
+		log.Error(err, "unable to set up health check")
+		os.Exit(1)
+	}
+	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
+		log.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
 

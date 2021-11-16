@@ -20,6 +20,7 @@ type PolicySpecSyncOptions struct {
 	ClusterNamespace          string
 	HubConfigFilePathName     string
 	ManagedConfigFilePathName string
+	ProbeAddr                 string
 }
 
 // Options default value
@@ -55,6 +56,13 @@ func ProcessFlags() {
 		"managed-cluster-configfile",
 		Options.ManagedConfigFilePathName,
 		"Configuration file pathname to managed kubernetes cluster",
+	)
+
+	flag.StringVar(
+		&Options.ProbeAddr,
+		"health-probe-bind-address",
+		":8081",
+		"The address the probe endpoint binds to.",
 	)
 }
 
