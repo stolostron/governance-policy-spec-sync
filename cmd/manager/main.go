@@ -4,7 +4,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"os"
@@ -23,7 +22,6 @@ import (
 	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/controller"
 	"github.com/open-cluster-management/governance-policy-spec-sync/version"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
-	"github.com/operator-framework/operator-sdk/pkg/leader"
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -100,16 +98,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	ctx := context.TODO()
-	// Become the leader before proceeding
-	err = leader.Become(ctx, "policy-spec-sync-lock")
-	if err != nil {
-		log.Error(err, "")
-		os.Exit(1)
-	}
-
 	// Set default manager options
 	options := manager.Options{
+		LeaderElection:         true,
+		LeaderElectionID:       "policy-spec-sync-lock",
+		LeaderElectionConfig:   managedCfg,
 		Namespace:              namespace,
 		MetricsBindAddress:     fmt.Sprintf("%s:%d", metricsHost, metricsPort),
 		HealthProbeBindAddress: tool.Options.ProbeAddr,
