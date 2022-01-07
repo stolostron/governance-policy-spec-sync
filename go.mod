@@ -1,12 +1,12 @@
-module github.com/open-cluster-management/governance-policy-spec-sync
+module github.com/stolostron/governance-policy-spec-sync
 
 go 1.17
 
 require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.16.0
-	github.com/open-cluster-management/governance-policy-propagator v0.0.0-20211012174109-95c3b77cce09
 	github.com/spf13/pflag v1.0.5
+	github.com/stolostron/governance-policy-propagator v0.0.0-20220106234408-4675151f7b90
 	k8s.io/api v0.22.1
 	k8s.io/apimachinery v0.22.1
 	k8s.io/client-go v12.0.0+incompatible
