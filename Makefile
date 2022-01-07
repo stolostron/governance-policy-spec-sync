@@ -268,7 +268,7 @@ e2e-test:
 e2e-dependencies:
 	go get github.com/onsi/ginkgo/ginkgo@v1.16.5
 	go get github.com/onsi/gomega/...@v1.16.0
-	go get github.com/stolostron/governance-policy-propagator@v0.0.0-20211012174109-95c3b77cce09
+	go get github.com/stolostron/governance-policy-propagator@v0.0.0-20220106234408-4675151f7b90
 
 e2e-debug:
 	@echo gathering hub info
