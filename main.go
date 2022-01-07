@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"strings"
 
-	policiesv1 "github.com/open-cluster-management/governance-policy-propagator/api/v1"
+	policiesv1 "github.com/stolostron/governance-policy-propagator/api/v1"
 	"github.com/spf13/pflag"
 
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -35,9 +35,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	//+kubebuilder:scaffold:imports
-	"github.com/open-cluster-management/governance-policy-spec-sync/controllers/sync"
-	"github.com/open-cluster-management/governance-policy-spec-sync/tool"
-	"github.com/open-cluster-management/governance-policy-spec-sync/version"
+	"github.com/stolostron/governance-policy-spec-sync/controllers/sync"
+	"github.com/stolostron/governance-policy-spec-sync/tool"
+	"github.com/stolostron/governance-policy-spec-sync/version"
 )
 
 // Change below variables to serve metrics on different host or port.
