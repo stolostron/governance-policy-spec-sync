@@ -10,8 +10,8 @@ import (
 	"runtime"
 	"strings"
 
-	policiesv1 "github.com/stolostron/governance-policy-propagator/api/v1"
 	"github.com/spf13/pflag"
+	policiesv1 "github.com/stolostron/governance-policy-propagator/api/v1"
 
 	// to ensure that exec-entrypoint and run can make use of them.
 	v1 "k8s.io/api/core/v1"
