@@ -4,7 +4,7 @@
 package v1
 
 import (
-	appsv1 "github.com/open-cluster-management/governance-policy-propagator/pkg/apis/apps/v1"
+	appsv1 "github.com/stolostron/governance-policy-propagator/pkg/apis/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -95,6 +95,9 @@ type PolicyStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:resource:path=policies,scope=Namespaced
 // +kubebuilder:resource:path=policies,shortName=plc
+// +kubebuilder:printcolumn:name="Remediation action",type="string",JSONPath=".spec.remediationAction"
+// +kubebuilder:printcolumn:name="Compliance state",type="string",JSONPath=".status.compliant"
+// +kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 type Policy struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
