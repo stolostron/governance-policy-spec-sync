@@ -12,18 +12,18 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 
-	addonutils "github.com/open-cluster-management/governance-policy-spec-sync/pkg/utils"
+	addonutils "github.com/stolostron/governance-policy-spec-sync/pkg/utils"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/open-cluster-management/governance-policy-spec-sync/cmd/manager/tool"
-	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/apis"
-	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/controller"
-	"github.com/open-cluster-management/governance-policy-spec-sync/version"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
+	"github.com/stolostron/governance-policy-spec-sync/cmd/manager/tool"
+	"github.com/stolostron/governance-policy-spec-sync/pkg/apis"
+	"github.com/stolostron/governance-policy-spec-sync/pkg/controller"
+	"github.com/stolostron/governance-policy-spec-sync/version"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"

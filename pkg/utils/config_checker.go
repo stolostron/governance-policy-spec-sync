@@ -1,7 +1,7 @@
 // Copyright (c) 2021 Red Hat, Inc.
 // Copyright Contributors to the Open Cluster Management project
 
-// This is a copy of https://github.com/open-cluster-management-io/addon-framework/blob/main/pkg/utils/config_checker.go
+// This is a copy of https://github.com/stolostron-io/addon-framework/blob/main/pkg/utils/config_checker.go
 // There were some go dependency conflicts that couldn't be resolved as the operator sdk used by this project is too old
 package utils
 
