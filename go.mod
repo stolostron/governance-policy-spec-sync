@@ -1,13 +1,13 @@
-module github.com/open-cluster-management/governance-policy-spec-sync
+module github.com/stolostron/governance-policy-spec-sync
 
 go 1.17
 
 require (
 	github.com/onsi/ginkgo v1.14.1
 	github.com/onsi/gomega v1.10.1
-	github.com/open-cluster-management/governance-policy-propagator v0.0.0-20210409191610-0ec1d5a4e19d
 	github.com/operator-framework/operator-sdk v0.19.4
 	github.com/spf13/pflag v1.0.5
+	github.com/stolostron/governance-policy-propagator v0.0.0-20220112144621-e92336a3af99
 	k8s.io/api v0.20.5
 	k8s.io/apimachinery v0.20.5
 	k8s.io/client-go v12.0.0+incompatible
@@ -79,6 +79,7 @@ require (
 replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.2.1
 	github.com/go-logr/zapr => github.com/go-logr/zapr v0.2.0
+	github.com/open-cluster-management/api => open-cluster-management.io/api v0.0.0-20200610161514-939cead3902c
 	golang.org/x/crypto => golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // CVE-2021-43565
 	k8s.io/client-go => k8s.io/client-go v0.20.5
 )
