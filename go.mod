@@ -7,7 +7,7 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/operator-framework/operator-sdk v0.19.4
 	github.com/spf13/pflag v1.0.5
-	github.com/stolostron/governance-policy-propagator v0.0.0-20220110170713-323f8599f82b
+	github.com/stolostron/governance-policy-propagator v0.0.0-20220112144621-e92336a3af99
 	k8s.io/api v0.20.5
 	k8s.io/apimachinery v0.20.5
 	k8s.io/apiserver v0.20.5
@@ -84,6 +84,7 @@ replace (
 	github.com/go-logr/logr => github.com/go-logr/logr v0.2.1
 	github.com/go-logr/zapr => github.com/go-logr/zapr v0.2.0
 	github.com/gogo/protobuf => github.com/gogo/protobuf v1.3.2
+	github.com/open-cluster-management/api => open-cluster-management.io/api v0.0.0-20200610161514-939cead3902c
 	golang.org/x/crypto => golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // CVE-2021-43565
 	k8s.io/client-go => k8s.io/client-go v0.20.5
 )
