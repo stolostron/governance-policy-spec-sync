@@ -2,7 +2,7 @@
 package controller
 
 import (
-	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/controller/sync"
+	"github.com/stolostron/governance-policy-spec-sync/pkg/controller/sync"
 )
 
 func init() {
