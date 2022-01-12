@@ -17,10 +17,10 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	"github.com/open-cluster-management/governance-policy-spec-sync/cmd/manager/tool"
-	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/apis"
-	"github.com/open-cluster-management/governance-policy-spec-sync/pkg/controller"
-	"github.com/open-cluster-management/governance-policy-spec-sync/version"
+	"github.com/stolostron/governance-policy-spec-sync/cmd/manager/tool"
+	"github.com/stolostron/governance-policy-spec-sync/pkg/apis"
+	"github.com/stolostron/governance-policy-spec-sync/pkg/controller"
+	"github.com/stolostron/governance-policy-spec-sync/version"
 
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
