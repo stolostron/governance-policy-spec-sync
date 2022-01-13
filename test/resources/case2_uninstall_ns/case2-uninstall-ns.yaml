@@ -29,7 +29,7 @@ spec:
         - name: multiclusterhub-operator-pull-secret
       containers:
       - name: uninstall-ns
-        image: "quay.io/stolostron/governance-policy-spec-sync:latest-2.2"
+        image: "quay.io/stolostron/governance-policy-spec-sync:1.0.0-PR83-fae114ab129ccc0b9a968f7bc5e62e0315e49214"
         imagePullPolicy: "Always"
         command: ["uninstall-ns"]
         args: 
