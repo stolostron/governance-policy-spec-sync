@@ -3,6 +3,8 @@
 package e2e
 
 import (
+	"context"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/stolostron/governance-policy-propagator/test/utils"
@@ -20,7 +22,7 @@ var _ = Describe("Test uninstall ns", func() {
 		utils.Kubectl("create", "ns", "uninstall",
 			"--kubeconfig=../../kubeconfig_managed")
 		Eventually(func() interface{} {
-			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			_, err := clientManaged.CoreV1().Namespaces().Get(context.TODO(), "uninstall", metav1.GetOptions{})
 			return err
 		}, defaultTimeoutSeconds, 1).Should(BeNil())
 		By("Creating a policy on mananged cluster in ns: uninstall")
@@ -40,7 +42,7 @@ var _ = Describe("Test uninstall ns", func() {
 			"--kubeconfig=../../kubeconfig_managed")
 		By("Checking if ns uninstall has been deleted eventually")
 		Eventually(func() interface{} {
-			_, err := clientManaged.CoreV1().Namespaces().Get("uninstall", metav1.GetOptions{})
+			_, err := clientManaged.CoreV1().Namespaces().Get(context.TODO(), "uninstall", metav1.GetOptions{})
 			return errors.IsNotFound(err)
 		}, 120, 1).Should(BeTrue())
 	})
