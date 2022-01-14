@@ -27,7 +27,7 @@ spec:
       serviceAccountName: governance-policy-spec-sync
       containers:
       - name: uninstall-ns
-        image: "quay.io/stolostron/governance-policy-spec-sync:latest-dev"
+        image: "quay.io/stolostron/governance-policy-spec-sync:latest-2.4"
         imagePullPolicy: "Always"
         command: ["uninstall-ns"]
         args: 
