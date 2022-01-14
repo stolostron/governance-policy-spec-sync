@@ -6,7 +6,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/open-cluster-management/governance-policy-spec-sync/cmd/manager/tool"
+	"github.com/stolostron/governance-policy-spec-sync/cmd/manager/tool"
 	"github.com/operator-framework/operator-sdk/pkg/log/zap"
 	"github.com/prometheus/common/log"
 	"github.com/spf13/pflag"

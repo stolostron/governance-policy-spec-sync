@@ -2,6 +2,8 @@
 package tool
 
 import (
+	"context"
+
 	"github.com/spf13/pflag"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -57,7 +59,7 @@ func ProcessFlags() {
 // DeleteClusterNs deletes the cluster namespace on managed cluster if not exists
 func DeleteClusterNs(client *kubernetes.Interface, ns string) error {
 	if ns != "" {
-		return (*client).CoreV1().Namespaces().Delete(ns, &metav1.DeleteOptions{})
+		return (*client).CoreV1().Namespaces().Delete(context.TODO(), ns, metav1.DeleteOptions{})
 	}
 	return nil
 }
