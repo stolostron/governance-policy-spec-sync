@@ -43,6 +43,11 @@ IMAGE_NAME_AND_VERSION ?= $(REGISTRY)/$(IMG)
 KIND_NAME ?= test-managed
 KIND_NAMESPACE ?= open-cluster-management-agent-addon
 KIND_VERSION ?= latest
+MANAGED_CLUSTER_NAME ?= managed
+WATCH_NAMESPACE ?= $(MANAGED_CLUSTER_NAME)
+HUB_CONFIG ?= $(PWD)/kubeconfig_hub
+HUB_CONFIG_INTERNAL ?= $(PWD)/kubeconfig_hub_internal
+MANAGED_CONFIG ?= $(PWD)/kubeconfig_managed
 ifneq ($(KIND_VERSION), latest)
 	KIND_ARGS = --image kindest/node:$(KIND_VERSION)
 else
@@ -139,6 +144,9 @@ local:
 	@GOOS=darwin build/common/scripts/gobuild.sh build/_output/bin/$(IMG) ./
 	@GOOS=darwin build/common/scripts/gobuild.sh build/_output/bin/uninstall-ns ./uninstall-ns
 
+run:
+	HUB_CONFIG=$(HUB_CONFIG) MANAGED_CONFIG=$(MANAGED_CONFIG) WATCH_NAMESPACE=$(WATCH_NAMESPACE) go run ./main.go --leader-elect=false
+
 ############################################################
 # images section
 ############################################################
@@ -201,37 +209,42 @@ kind-bootstrap-cluster: kind-create-cluster install-crds install-resources kind-
 .PHONY: kind-bootstrap-cluster-dev
 kind-bootstrap-cluster-dev: kind-create-cluster install-crds install-resources
 
-kind-deploy-controller:
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
-	@echo creating secrets on hub and managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(PWD)/kubeconfig_hub_internal --kubeconfig=$(PWD)/kubeconfig_managed
-	@echo installing policy-spec-sync
-	kubectl apply -f deploy/operator.yaml -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
+# Used to run the sync controller locally. These manifests are a subset of those inside of
+# deploy/operator.yaml in the kind-deploy-controller target, so are not intended to be run together.
+kind-deploy-controller-prereqs:
+	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	@echo Creating secrets on hub and managed
+	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG)
+	@echo Creating controller RBAC resources on managed
+	kubectl apply -k deploy/rbac -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
-kind-deploy-controller-dev:
+kind-deploy-controller:
+	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	@echo Creating secrets on hub and managed
+	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG)
+	@echo Installing $(IMG)
+	kubectl apply -f deploy/operator.yaml -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"env\":[{\"name\":\"WATCH_NAMESPACE\",\"value\":\"$(WATCH_NAMESPACE)\"}]}]}}}}" --kubeconfig=$(MANAGED_CONFIG)
+
+kind-deploy-controller-dev: kind-deploy-controller
 	@echo Pushing image to KinD cluster
 	kind load docker-image $(REGISTRY)/$(IMG):$(TAG) --name $(KIND_NAME)
-	@echo Installing $(IMG)
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(PWD)/kubeconfig_hub_internal --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl apply -f deploy/operator.yaml -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
 	@echo "Patch deployment image"
-	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"imagePullPolicy\":\"Never\"}]}}}}" --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"image\":\"$(REGISTRY)/$(IMG):$(TAG)\"}]}}}}" --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl rollout status -n $(KIND_NAMESPACE) deployment $(IMG) --timeout=180s --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"imagePullPolicy\":\"Never\"}]}}}}" --kubeconfig=$(MANAGED_CONFIG)
+	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"image\":\"$(REGISTRY)/$(IMG):$(TAG)\"}]}}}}" --kubeconfig=$(MANAGED_CONFIG)
+	kubectl rollout status -n $(KIND_NAMESPACE) deployment $(IMG) --timeout=180s --kubeconfig=$(MANAGED_CONFIG)
 	# Workaround to properly set E2E image to local image
 	sed -i 's%quay.io/stolostron/governance-policy-spec-sync:latest%$(REGISTRY)/$(IMG):$(TAG)%' test/resources/case2_uninstall_ns/case2-uninstall-ns.yaml
 	sed -i 's%imagePullPolicy: "Always"%imagePullPolicy: "Never"%' test/resources/case2_uninstall_ns/case2-uninstall-ns.yaml
-	
 
 kind-create-cluster:
 	@echo "creating cluster"
 	kind create cluster --name test-hub $(KIND_ARGS)
-	kind get kubeconfig --name test-hub > $(PWD)/kubeconfig_hub
+	kind get kubeconfig --name test-hub > $(HUB_CONFIG)
 	# needed for managed -> hub communication
-	kind get kubeconfig --name test-hub --internal > $(PWD)/kubeconfig_hub_internal
+	kind get kubeconfig --name test-hub --internal > $(HUB_CONFIG_INTERNAL)
 	kind create cluster --name $(KIND_NAME) $(KIND_ARGS)
-	kind get kubeconfig --name $(KIND_NAME) > $(PWD)/kubeconfig_managed
+	kind get kubeconfig --name $(KIND_NAME) > $(MANAGED_CONFIG)
 
 kind-delete-cluster:
 	kind delete cluster --name test-hub
@@ -239,13 +252,14 @@ kind-delete-cluster:
 
 install-crds:
 	@echo installing crds
-	kubectl apply -f https://raw.githubusercontent.com/stolostron/governance-policy-propagator/main/deploy/crds/policy.open-cluster-management.io_policies.yaml --kubeconfig=$(PWD)/kubeconfig_hub
-	kubectl apply -f https://raw.githubusercontent.com/stolostron/governance-policy-propagator/main/deploy/crds/policy.open-cluster-management.io_policies.yaml --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl apply -f https://raw.githubusercontent.com/stolostron/governance-policy-propagator/main/deploy/crds/policy.open-cluster-management.io_policies.yaml --kubeconfig=$(HUB_CONFIG)
+	kubectl apply -f https://raw.githubusercontent.com/stolostron/governance-policy-propagator/main/deploy/crds/policy.open-cluster-management.io_policies.yaml --kubeconfig=$(MANAGED_CONFIG)
 
 install-resources:
 	@echo creating namespace on hub
-	kubectl create ns managed --kubeconfig=$(PWD)/kubeconfig_hub
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(HUB_CONFIG)
 	@echo creating namespace on managed
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 e2e-dependencies:
 	go get github.com/onsi/ginkgo/v2/ginkgo@$(GINKGO_VERSION)
@@ -260,14 +274,14 @@ e2e-dependencies:
 
 e2e-debug:
 	@echo gathering hub info
-	kubectl get all -n managed --kubeconfig=$(PWD)/kubeconfig_hub
-	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(PWD)/kubeconfig_hub
+	kubectl get all -n managed --kubeconfig=$(HUB_CONFIG)
+	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(HUB_CONFIG)
 	@echo gathering managed cluster info
-	kubectl get all -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl get all -n managed --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl describe pods -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
-	kubectl logs $$(kubectl get pods -n $(KIND_NAMESPACE) -o name --kubeconfig=$(PWD)/kubeconfig_managed | grep $(IMG)) -n $(KIND_NAMESPACE) --kubeconfig=$(PWD)/kubeconfig_managed
+	kubectl get all -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl get all -n managed --kubeconfig=$(MANAGED_CONFIG)
+	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(MANAGED_CONFIG)
+	kubectl describe pods -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl logs $$(kubectl get pods -n $(KIND_NAMESPACE) -o name --kubeconfig=$(MANAGED_CONFIG) | grep $(IMG)) -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 ############################################################
 # e2e test coverage
