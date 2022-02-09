@@ -276,10 +276,14 @@ e2e-test:
 e2e-test-coverage: E2E_TEST_ARGS = --json-report=report_e2e.json --output-dir=.
 e2e-test-coverage: e2e-test
 
+e2e-build-instrumented:
+	go test -covermode=atomic -coverpkg=$(GIT_HOST)/$(IMG)/... -c -tags e2e ./ -o build/_output/bin/$(IMG)-instrumented
 
-e2e-dependencies:
-	go get github.com/onsi/ginkgo/ginkgo@v1.16.5
-	go get github.com/onsi/gomega/...@v1.16.0
+e2e-run-instrumented:
+	HUB_CONFIG=$(HUB_CONFIG) MANAGED_CONFIG=$(MANAGED_CONFIG) WATCH_NAMESPACE=$(WATCH_NAMESPACE) ./build/_output/bin/$(IMG)-instrumented -test.run "^TestRunMain$$" -test.coverprofile=coverage_e2e.out &>/dev/null &
+
+e2e-stop-instrumented:
+	ps -ef | grep '$(IMG)' | grep -v grep | awk '{print $$2}' | xargs kill
 
 e2e-debug:
 	@echo gathering hub info
