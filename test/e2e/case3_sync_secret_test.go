@@ -8,9 +8,9 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/stolostron/governance-policy-propagator/test/utils"
+	"open-cluster-management.io/governance-policy-propagator/test/utils"
 
-	"github.com/stolostron/governance-policy-spec-sync/controllers/secretsync"
+	"open-cluster-management.io/governance-policy-spec-sync/controllers/secretsync"
 )
 
 const (
