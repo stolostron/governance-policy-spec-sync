@@ -66,8 +66,17 @@ $(GOBIN):
 ############################################################
 # clean section
 ############################################################
-clean::
-	rm -f build/_output/bin/$(IMG)
+
+clean:
+	-rm bin/*
+	-rm build/_output/bin/*
+	-rm coverage*.out
+	-rm report*.json
+	-rm kubeconfig_managed
+	-rm kubeconfig_hub
+	-rm kubeconfig_hub_internal
+	-rm -r vendor/
+	-rm -rf .go/
 
 ############################################################
 # format section
