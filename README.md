@@ -54,5 +54,5 @@ environment, limit this to just the managed cluster namespace.
 - The `governance-policy-spec-sync` is part of the `open-cluster-management` community. For more information, visit: [open-cluster-management.io](https://open-cluster-management.io).
 
 <!---
-Date: April/29/2022
+Date: 05/11/2022
 -->
