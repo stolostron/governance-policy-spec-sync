@@ -230,17 +230,17 @@ kind-bootstrap-cluster-dev: kind-create-cluster install-crds install-resources
 # deploy/operator.yaml in the kind-deploy-controller target, so are not intended to be run together.
 .PHONY: kind-deploy-controller-prereqs
 kind-deploy-controller-prereqs:
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
 	@echo Creating secrets on hub and managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG) || true
 	@echo Creating controller RBAC resources on managed
 	kubectl apply -k deploy/rbac -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 .PHONY: kind-deploy-controller
 kind-deploy-controller:
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
 	@echo Creating secrets on hub and managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG) || true
 	@echo Installing $(IMG)
 	kubectl apply -f deploy/operator.yaml -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"env\":[{\"name\":\"WATCH_NAMESPACE\",\"value\":\"$(WATCH_NAMESPACE)\"}]}]}}}}" --kubeconfig=$(MANAGED_CONFIG)
@@ -278,9 +278,9 @@ install-crds:
 .PHONY: install-resources
 install-resources:
 	@echo creating namespace on hub
-	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(HUB_CONFIG)
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(HUB_CONFIG) || true
 	@echo creating namespace on managed
-	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
 
 .PHONY: e2e-dependencies
 e2e-dependencies:
