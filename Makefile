@@ -221,26 +221,21 @@ kustomize: ## Download kustomize locally if necessary.
 GINKGO = $(LOCAL_BIN)/ginkgo
 
 .PHONY: kind-bootstrap-cluster
-kind-bootstrap-cluster: kind-create-cluster install-crds install-resources kind-deploy-controller
+kind-bootstrap-cluster: kind-create-cluster install-crds install-resources kind-deploy-controller-prereqs kind-deploy-controller
 
 .PHONY: kind-bootstrap-cluster-dev
-kind-bootstrap-cluster-dev: kind-create-cluster install-crds install-resources
+kind-bootstrap-cluster-dev: kind-create-cluster install-crds install-resources kind-deploy-controller-prereqs
 
-# Used to run the sync controller locally. These manifests are a subset of those inside of
-# deploy/operator.yaml in the kind-deploy-controller target, so are not intended to be run together.
 .PHONY: kind-deploy-controller-prereqs
 kind-deploy-controller-prereqs:
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
+	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 	@echo Creating secrets on hub and managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG) || true
+	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG)
 	@echo Creating controller RBAC resources on managed
 	kubectl apply -k deploy/rbac -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 .PHONY: kind-deploy-controller
 kind-deploy-controller:
-	kubectl create ns $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
-	@echo Creating secrets on hub and managed
-	kubectl create secret -n $(KIND_NAMESPACE) generic hub-kubeconfig --from-file=kubeconfig=$(HUB_CONFIG_INTERNAL) --kubeconfig=$(MANAGED_CONFIG) || true
 	@echo Installing $(IMG)
 	kubectl apply -f deploy/operator.yaml -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 	kubectl patch deployment $(IMG) -n $(KIND_NAMESPACE) -p "{\"spec\":{\"template\":{\"spec\":{\"containers\":[{\"name\":\"$(IMG)\",\"env\":[{\"name\":\"WATCH_NAMESPACE\",\"value\":\"$(WATCH_NAMESPACE)\"}]}]}}}}" --kubeconfig=$(MANAGED_CONFIG)
@@ -278,9 +273,9 @@ install-crds:
 .PHONY: install-resources
 install-resources:
 	@echo creating namespace on hub
-	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(HUB_CONFIG) || true
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(HUB_CONFIG)
 	@echo creating namespace on managed
-	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG) || true
+	kubectl create ns $(WATCH_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 .PHONY: e2e-dependencies
 e2e-dependencies:
@@ -300,7 +295,7 @@ e2e-build-instrumented:
 
 .PHONY: e2e-run-instrumented
 e2e-run-instrumented: e2e-build-instrumented
-	HUB_CONFIG=$(HUB_CONFIG) MANAGED_CONFIG=$(MANAGED_CONFIG) WATCH_NAMESPACE=$(WATCH_NAMESPACE) ./build/_output/bin/$(IMG)-instrumented -test.run "^TestRunMain$$" -test.coverprofile=coverage_e2e.out &>/dev/null &
+	HUB_CONFIG=$(HUB_CONFIG) MANAGED_CONFIG=$(MANAGED_CONFIG) WATCH_NAMESPACE=$(WATCH_NAMESPACE) ./build/_output/bin/$(IMG)-instrumented -test.run "^TestRunMain$$" -test.coverprofile=coverage_e2e.out &>build/_output/controller.log &
 
 .PHONY: e2e-stop-instrumented
 e2e-stop-instrumented:
@@ -308,15 +303,10 @@ e2e-stop-instrumented:
 
 .PHONY: e2e-debug
 e2e-debug:
-	@echo gathering hub info
-	kubectl get all -n managed --kubeconfig=$(HUB_CONFIG)
-	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(HUB_CONFIG)
-	@echo gathering managed cluster info
-	kubectl get all -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
-	kubectl get all -n managed --kubeconfig=$(MANAGED_CONFIG)
-	kubectl get Policy.policy.open-cluster-management.io --all-namespaces --kubeconfig=$(MANAGED_CONFIG)
-	kubectl describe pods -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
-	kubectl logs $$(kubectl get pods -n $(KIND_NAMESPACE) -o name --kubeconfig=$(MANAGED_CONFIG) | grep $(IMG)) -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
+	@echo local controller log:
+	-cat build/_output/controller.log
+	@echo remote controller log:
+	-kubectl logs $$(kubectl get pods -n $(KIND_NAMESPACE) -o name --kubeconfig=$(MANAGED_CONFIG) | grep $(IMG)) -n $(KIND_NAMESPACE) --kubeconfig=$(MANAGED_CONFIG)
 
 ############################################################
 # test coverage

@@ -68,7 +68,6 @@ jobs:
         KIND_VERSION: ${{ matrix.kind }}
       run: |
         make kind-bootstrap-cluster-dev
-        make kind-deploy-controller-prereqs
 
     - name: E2E Tests
       run: |
