@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: governance-policy-spec-sync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: governance-policy-spec-sync
+  template:
+    metadata:
+      labels:
+        name: governance-policy-spec-sync
+    spec:
+      serviceAccountName: governance-policy-spec-sync
+      containers:
+        - name: governance-policy-spec-sync
+          image: quay.io/stolostron/governance-policy-spec-sync:latest
+          command:
+            - governance-policy-spec-sync
+          args:
+            - "--hub-cluster-configfile=/var/run/klusterlet/kubeconfig"
+            - "--log-level=2"
+            - "--v=0"
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: klusterlet-config
+              mountPath: /var/run/klusterlet
+          env:
+            - name: WATCH_NAMESPACE
+              value: managed
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "governance-policy-spec-sync"
+          securityContext:
+            allowPrivilegeEscalation: false
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: klusterlet-config
+          secret:
+            secretName: hub-kubeconfig
+            defaultMode: 420

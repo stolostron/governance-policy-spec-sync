@@ -30,7 +30,7 @@ get-cluster-credentials: activate-serviceaccount
 config-docker: get-cluster-credentials
 	@build/common/scripts/config_docker.sh
 
-FINDFILES=find . \( -path ./.git -o -path ./.github \) -prune -o -type f
+FINDFILES=find . \( -path ./.git -o -path ./.github -o -path ./.go \) -prune -o -type f
 XARGS = xargs -0 ${XARGS_FLAGS}
 CLEANXARGS = xargs ${XARGS_FLAGS}
 
@@ -58,6 +58,6 @@ lint-markdown:
 lint-all: lint-yaml lint-go
 
 format-go:
-	@${FINDFILES} -name '*.go' \( ! \( -name '*.gen.go' -o -name '*.pb.go' \) \) -print0 | ${XARGS} goimports -w -local "github.com/open-cluster-management"
+	@${FINDFILES} -name '*.go' \( ! \( -name '*.gen.go' -o -name '*.pb.go' \) \) -print0 | ${XARGS} goimports -w -local "github.com/stolostron"
 
 .PHONY: lint-dockerfiles lint-scripts lint-yaml lint-copyright-banner lint-go lint-markdown lint-all format-go config-docker
