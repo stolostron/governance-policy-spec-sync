@@ -22,7 +22,7 @@ var _ = Describe("Test spec sync", func() {
 		By("Creating a policy on hub cluster in ns:" + testNamespace)
 		_, err := utils.KubectlWithOutput("apply", "-f", case1PolicyYaml, "-n", testNamespace,
 			"--kubeconfig=../../kubeconfig_hub")
-		Expect(err).Should(BeNil())
+		Expect(err).ShouldNot(HaveOccurred())
 		plc := utils.GetWithTimeout(
 			clientManagedDynamic,
 			gvrPolicy,
@@ -66,7 +66,7 @@ var _ = Describe("Test spec sync", func() {
 			context.TODO(),
 			hubPlc,
 			metav1.UpdateOptions{})
-		Expect(err).To(BeNil())
+		Expect(err).ToNot(HaveOccurred())
 		Eventually(func() interface{} {
 			managedPlc := utils.GetWithTimeout(
 				clientManagedDynamic,
@@ -84,7 +84,7 @@ var _ = Describe("Test spec sync", func() {
 		_, err := utils.KubectlWithOutput("apply",
 			"-f", "../resources/case1_spec_sync/case1-test-policy2.yaml",
 			"-n", testNamespace, "--kubeconfig=../../kubeconfig_hub")
-		Expect(err).Should(BeNil())
+		Expect(err).ShouldNot(HaveOccurred())
 		hubPlc := utils.GetWithTimeout(
 			clientHubDynamic,
 			gvrPolicy,
@@ -110,7 +110,7 @@ var _ = Describe("Test spec sync", func() {
 		By("Deleting policy on hub")
 		_, err := utils.KubectlWithOutput("delete", "policy", "-n", testNamespace,
 			"--all", "--kubeconfig=../../kubeconfig_hub")
-		Expect(err).Should(BeNil())
+		Expect(err).ShouldNot(HaveOccurred())
 		opt := metav1.ListOptions{}
 		utils.ListWithTimeout(clientHubDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)
 		utils.ListWithTimeout(clientManagedDynamic, gvrPolicy, opt, 0, true, defaultTimeoutSeconds)

@@ -115,7 +115,7 @@ var _ = BeforeSuite(func() {
 			metav1.CreateOptions{},
 		)
 		if !errors.IsAlreadyExists(err) {
-			Expect(err).Should(BeNil())
+			Expect(err).ShouldNot(HaveOccurred())
 		}
 	} else {
 		targetNamespace = testNamespace
